@@ -15,7 +15,11 @@ var hospital_coords = [];
 var crimes = [];
 var crime_coords = [];
 
+var property_coords = [];
+
 var neighborhood_scores = [];
+
+
 
 var db = new Db('repo', new Server('localhost', 27017));
 db.open(function(err, db) {
@@ -63,6 +67,14 @@ db.open(function(err, db) {
         }
     });
 
+    db.collection('jyaang_robinliu106.property').find().toArray( function(err,result) {
+
+        if (err) { console.log ('Error message : ' + error); }
+
+        for (var i = 0; i < result.length; i++) {
+            property_coords.push( result[i]['coord'] );
+        }
+    });
 
 });
 
@@ -80,7 +92,9 @@ router.get('/', function(req, res){
     hospitals: JSON.stringify(hospitals),
     hospital_coords: JSON.stringify(hospital_coords),
     crimes: JSON.stringify(crimes),
-    neighborhood_scores: JSON.stringify(neighborhood_scores)
+    crime_coords: JSON.stringify(crime_coords),
+    neighborhood_scores: JSON.stringify(neighborhood_scores),
+    property_coords: JSON.stringify(property_coords)
   });
 });
 

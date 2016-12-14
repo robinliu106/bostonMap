@@ -10,8 +10,12 @@ var hospitals = JSON.parse(document.getElementById('hospitals').innerHTML);
 var hospital_coordsFromHTML = JSON.parse(document.getElementById('hospital_coords').innerHTML);
 var hospital_coords = generateGooglePoints(hospital_coordsFromHTML);
 
-var crime_coordsFromHTML = JSON.parse(document.getElementById('crimes').innerHTML);
+var crime_coordsFromHTML = JSON.parse(document.getElementById('crime_coords').innerHTML);
 var crime_coords = generateGooglePoints(crime_coordsFromHTML);
+
+
+var property_coordsFromHTML = JSON.parse(document.getElementById('property_coords').innerHTML);
+var property_coords = generateGooglePoints(property_coordsFromHTML);
 
 
 function generateGooglePoints(category) {
@@ -23,17 +27,6 @@ function generateGooglePoints(category) {
 }
 
 
-//var schools = fetchSchools();
-//var school_coords = fetchSchoolsCoord(); //just the coordinates
-
-/*
-var hospitals = fetchHospitals(); //names and coord
-var hospital_coords = fetchHospitalsCoord(); //just the coordinates
-*/
-
-//var crimes = fetchCrimesCoord();
-
-//var properties = fetchProperties();
 
 function initialize() {
 
@@ -95,100 +88,10 @@ function initialize() {
 
 }
 
-
-
-
-//////////////
-// Fetch data
-//////////////
-
-//get hospital data in format: [name,coord]
-function fetchHospitals(){
-    var hospitals = [];
-    $.getJSON('https://data.cityofboston.gov/api/views/46f7-2snz/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < 25; i++) {
-            hospitals.push([ response.data[i][8] , [response.data[i][14][1],response.data[i][14][2]] ] );
-        }
-    });
-    return hospitals;
-}
-
-//get hospital data in just coordinate form
-function fetchHospitalsCoord(){
-    var hospitals = [];
-    $.getJSON('https://data.cityofboston.gov/api/views/46f7-2snz/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < 25; i++) {
-            hospitals.push( new google.maps.LatLng(response.data[i][14][1],response.data[i][14][2]) );
-        }
-    });
-    return hospitals;
-}
-
-//get school data in format: [name,coord]
-function fetchSchools() {
-    var schools = [];
-    $.getJSON( 'https://data.cityofboston.gov/api/views/e29s-ympv/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < 25; i++) {
-            schools.push( [response.data[i][10] , response.data[i][12][1] , response.data[i][12][2]] );
-        }
-    });
-    return schools;
-}
-//get school data in just coordinate form
-function fetchSchoolsCoord() {
-    var schoolsCoord = [];
-    $.getJSON( 'https://data.cityofboston.gov/api/views/e29s-ympv/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < 25; i++) {
-            schoolsCoord.push( new google.maps.LatLng( response.data[i][12][1] , response.data[i][12][2] ) );
-        }
-    });
-    return schoolsCoord;
-}
-
-function fetchCrimesCoord() {
-    var crimes = [];
-    $.getJSON( 'https://data.cityofboston.gov/api/views/fqn4-4qap/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < 500; i++) {
-            crimes.push( new google.maps.LatLng( response.data[i][24][1] , response.data[i][24][2] ) );
-        }
-    });
-    return crimes;
-}
-
-function fetchProperties() {
-    console.log('running fetch properties');
-    var residentUse = ['CD', 'R1', 'R2', 'R3', 'R4', 'RC', 'RL'];
-    var properties = [];
-    $.getJSON( 'https://data.cityofboston.gov/api/views/i7w8-ure5/rows.json?accessType=DOWNLOAD',{ },
-    function(response) {
-        for (var i = 0; i < response.data.length; i++) {
-            //console.log('i: ' + i);
-            if (response.data[i][83] == "#N/A" || response.data[i][84] == "#N/A") {
-                ;
-            } else if ( residentUse.indexOf(response.data[i][13]) != -1 ){
-                properties.push( new google.maps.LatLng( response.data[i][83] , response.data[i][84] ) );
-            }
-        }
-
-    });
-    console.log(properties);
-    return properties;
-}
-
 ////////////////////////////
 // Heatmap Toggles
 ////////////////////////////
 //create circle for each school
-
-
-
-
-
 
 
 //init school heatmap
@@ -254,6 +157,7 @@ function calculateScore(marker) {
     var school_count = 0;
     var hospital_count = 0;
     var crime_count = 0;
+    var property_count = 0;
     var score = 0;
 
 
@@ -271,14 +175,21 @@ function calculateScore(marker) {
         }
     }
 
-    for (var i = 0; i < crimes.length; i++) {
-        currentDistance = calcDistance(marker.lat(),marker.lng(),crimes[i].lat(),crimes[i].lng());
+    for (var i = 0; i < crime_coords.length; i++) {
+        currentDistance = calcDistance(marker.lat(),marker.lng(),crime_coords[i].lat(),crime_coords[i].lng());
         if (currentDistance < threshold) {
             crime_count += 1;
         }
     }
 
-    score = school_count * 0.25 + hospital_count * 0.25 - crime_count * 0.25 / 100;
+    for (var i = 0; i < property_coords.length; i++) {
+        currentDistance = calcDistance(marker.lat(),marker.lng(),property_coords[i].lat(),property_coords[i].lng());
+        if (currentDistance < threshold) {
+            property_count += 1;
+        }
+    }
+    console.log(property_count,crime_count,school_count,hospital_count);
+    score = (property_count * 0.25 / 30) + school_count * 0.25 + hospital_count * 0.25 - (crime_count * 0.25 / 100);
     document.getElementById('score').innerHTML = 'Score: ' + score;
 
 
@@ -363,3 +274,95 @@ var neighborhoods = [
 ['West End', [42.3644, -71.0661]],
 ['West Roxbury', [42.2798, -71.1627]]
 ]
+
+//////////////
+// Fetch data , we are not using this anymore
+//////////////
+
+/*
+var schools = fetchSchools();
+var school_coords = fetchSchoolsCoord(); //just the coordinates
+var hospitals = fetchHospitals(); //names and coord
+var hospital_coords = fetchHospitalsCoord(); //just the coordinates
+var crimes = fetchCrimesCoord();
+var properties = fetchProperties();
+*/
+/*
+//get hospital data in format: [name,coord]
+function fetchHospitals(){
+    var hospitals = [];
+    $.getJSON('https://data.cityofboston.gov/api/views/46f7-2snz/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < 25; i++) {
+            hospitals.push([ response.data[i][8] , [response.data[i][14][1],response.data[i][14][2]] ] );
+        }
+    });
+    return hospitals;
+}
+
+//get hospital data in just coordinate form
+function fetchHospitalsCoord(){
+    var hospitals = [];
+    $.getJSON('https://data.cityofboston.gov/api/views/46f7-2snz/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < 25; i++) {
+            hospitals.push( new google.maps.LatLng(response.data[i][14][1],response.data[i][14][2]) );
+        }
+    });
+    return hospitals;
+}
+
+//get school data in format: [name,coord]
+function fetchSchools() {
+    var schools = [];
+    $.getJSON( 'https://data.cityofboston.gov/api/views/e29s-ympv/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < 25; i++) {
+            schools.push( [response.data[i][10] , response.data[i][12][1] , response.data[i][12][2]] );
+        }
+    });
+    return schools;
+}
+//get school data in just coordinate form
+function fetchSchoolsCoord() {
+    var schoolsCoord = [];
+    $.getJSON( 'https://data.cityofboston.gov/api/views/e29s-ympv/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < 25; i++) {
+            schoolsCoord.push( new google.maps.LatLng( response.data[i][12][1] , response.data[i][12][2] ) );
+        }
+    });
+    return schoolsCoord;
+}
+
+function fetchCrimesCoord() {
+    var crimes = [];
+    $.getJSON( 'https://data.cityofboston.gov/api/views/fqn4-4qap/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < 500; i++) {
+            crimes.push( new google.maps.LatLng( response.data[i][24][1] , response.data[i][24][2] ) );
+        }
+    });
+    return crimes;
+}
+
+function fetchProperties() {
+    console.log('running fetch properties');
+    var residentUse = ['CD', 'R1', 'R2', 'R3', 'R4', 'RC', 'RL'];
+    var properties = [];
+    $.getJSON( 'https://data.cityofboston.gov/api/views/i7w8-ure5/rows.json?accessType=DOWNLOAD',{ },
+    function(response) {
+        for (var i = 0; i < response.data.length; i++) {
+            //console.log('i: ' + i);
+            if (response.data[i][83] == "#N/A" || response.data[i][84] == "#N/A") {
+                ;
+            } else if ( residentUse.indexOf(response.data[i][13]) != -1 ){
+                properties.push( new google.maps.LatLng( response.data[i][83] , response.data[i][84] ) );
+            }
+        }
+
+    });
+    console.log(properties);
+    return properties;
+}
+*/
