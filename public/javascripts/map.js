@@ -2,15 +2,36 @@ var map; //important
 
 google.maps.event.addDomListener(window, 'load', initialize); //load map
 
+var schools = JSON.parse(document.getElementById('schools').innerHTML);
+var school_coordsFromHTML = JSON.parse(document.getElementById('school_coords').innerHTML);
+var school_coords = generateGooglePoints(school_coordsFromHTML);
+
+var hospitals = JSON.parse(document.getElementById('hospitals').innerHTML);
+var hospital_coordsFromHTML = JSON.parse(document.getElementById('hospital_coords').innerHTML);
+var hospital_coords = generateGooglePoints(hospital_coordsFromHTML);
+
+var crime_coordsFromHTML = JSON.parse(document.getElementById('crimes').innerHTML);
+var crime_coords = generateGooglePoints(crime_coordsFromHTML);
 
 
-var schools = fetchSchools(); //to get the names
-var school_coords = fetchSchoolsCoord(); //just the coordinates
+function generateGooglePoints(category) {
+    googArray = [];
+    for (var i = 0; i < category.length; i++ ) {
+        googArray.push( new google.maps.LatLng( category[i][0] , category[i][1] ) );
+    }
+    return googArray;
+}
 
+
+//var schools = fetchSchools();
+//var school_coords = fetchSchoolsCoord(); //just the coordinates
+
+/*
 var hospitals = fetchHospitals(); //names and coord
 var hospital_coords = fetchHospitalsCoord(); //just the coordinates
+*/
 
-var crimes = fetchCrimesCoord();
+//var crimes = fetchCrimesCoord();
 
 //var properties = fetchProperties();
 
@@ -21,6 +42,7 @@ function initialize() {
         center: { lat: 42.342132, lng: -71.103023 }, //Boston
     });
 
+    /*
     for (var i in school_coords) {
         var schoolCircle = new google.maps.Circle({
             strokeColor: '#FF0000',
@@ -47,7 +69,8 @@ function initialize() {
             radius: 300
         });
     }
-
+    */
+    //put the legend on the bottom left corner of the map
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(document.getElementById('legend'));
 
     //Create a marker on the map
@@ -272,7 +295,6 @@ function getClosest(marker,category,type) {
             counter = i;
         }
     }
-
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix({
         origins: [marker],
