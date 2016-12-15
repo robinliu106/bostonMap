@@ -1,3 +1,5 @@
+//generates the chloropleth graph
+
 // THIS IS THE JSON OBJECT W/ ALL TH DATA IN IT.
 var zipData = {
     "type": "FeatureCollection", "features": [

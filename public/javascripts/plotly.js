@@ -1,3 +1,5 @@
+//Generates the plotly graph
+
 //PROPERTY VALUE
 var property_trace = {
   x: ['Allston', 'Back Bay', 'Bay Village', 'Beacon Hill', 'Brighton', 'Charlestown', 'Chinatown', 'Dorchester', 'Downtown Crossing', 'East Boston', 'Fenway', 'Hyde Park', 'Jamaica Plain', 'Mattapan', 'Mission Hill', 'North End', 'Roslindale', 'Roxbury', 'South Boston', 'West End', 'West Roxbury'],
@@ -32,7 +34,7 @@ var school_data = [school_trace];
 var crime_data = [crime_trace];
 
 var property_layout = {
-    title: ' # of Residences in Each Neighborhood'
+    title: ' Average Value of Residential Properties in Each Neighborhood'
 }
 
 var hospital_layout = {
