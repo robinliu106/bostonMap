@@ -2,6 +2,8 @@ var map; //important
 
 google.maps.event.addDomListener(window, 'load', initialize); //load map
 
+
+//get data from mongoDB
 var schools = JSON.parse(document.getElementById('schools').innerHTML);
 var school_coordsFromHTML = JSON.parse(document.getElementById('school_coords').innerHTML);
 var school_coords = generateGooglePoints(school_coordsFromHTML);
@@ -10,14 +12,16 @@ var hospitals = JSON.parse(document.getElementById('hospitals').innerHTML);
 var hospital_coordsFromHTML = JSON.parse(document.getElementById('hospital_coords').innerHTML);
 var hospital_coords = generateGooglePoints(hospital_coordsFromHTML);
 
+//Crime takes some time to load
 var crime_coordsFromHTML = JSON.parse(document.getElementById('crime_coords').innerHTML);
 var crime_coords = generateGooglePoints(crime_coordsFromHTML);
 
-
+//property also takes some time to load
 var property_coordsFromHTML = JSON.parse(document.getElementById('property_coords').innerHTML);
 var property_coords = generateGooglePoints(property_coordsFromHTML);
 
 
+//using coordinates, we generate google (longitude,latitude) for each point
 function generateGooglePoints(category) {
     googArray = [];
     for (var i = 0; i < category.length; i++ ) {
@@ -26,43 +30,14 @@ function generateGooglePoints(category) {
     return googArray;
 }
 
-
-
 function initialize() {
 
+    //initialize map
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
         center: { lat: 42.342132, lng: -71.103023 }, //Boston
     });
 
-    /*
-    for (var i in school_coords) {
-        var schoolCircle = new google.maps.Circle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
-            map: map,
-            center: school_coords[i],
-            radius: 300
-        });
-    }
-
-
-    for (var i in hospital_coords) {
-        var hospitalCircle = new google.maps.Circle({
-            strokeColor: '#00FF00', //green
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#00FF00',
-            fillOpacity: 0.35,
-            map: map,
-            center: hospital_coords[i],
-            radius: 300
-        });
-    }
-    */
     //put the legend on the bottom left corner of the map
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(document.getElementById('legend'));
 
@@ -89,10 +64,8 @@ function initialize() {
 }
 
 ////////////////////////////
-// Heatmap Toggles
+// Heatmaps and Toggles
 ////////////////////////////
-//create circle for each school
-
 
 //init school heatmap
 var heatMapSchool = new google.maps.visualization.HeatmapLayer({
@@ -136,10 +109,8 @@ function toggle_heatmap_hospital() {
 }
 
 
-////////////////////////////
-// Adds a marker to the map.
-////////////////////////////
 
+// Adds a marker to the map.
 function addMarker(location) {
     marker = new google.maps.Marker({
         position: location,
@@ -153,6 +124,7 @@ function addMarker(location) {
 function calculateScore(marker) {
     var threshold = 3; //threshold in km for distance to a category
 
+    //variables to keep track of different metrics
     var currentDistance = 0;
     var school_count = 0;
     var hospital_count = 0;
@@ -160,45 +132,54 @@ function calculateScore(marker) {
     var property_count = 0;
     var score = 0;
 
-
+    //count number of schools within a 3 km radius
     for (var i = 0; i < schools.length; i++) {
         currentDistance = calcDistance(marker.lat(),marker.lng(),school_coords[i].lat(),school_coords[i].lng());
-        if (currentDistance < threshold) {
+        if (currentDistance < threshold) { //within 3km radius
             school_count += 1;
         }
     }
 
+    //count number of hospitals within a 3 km radius
     for (var i = 0; i < hospitals.length; i++) {
         currentDistance = calcDistance(marker.lat(),marker.lng(),hospital_coords[i].lat(),hospital_coords[i].lng());
-        if (currentDistance < threshold) {
+        if (currentDistance < threshold) { //within 3km radius
             hospital_count += 1;
         }
     }
 
+    //count number of crimes within a 3 km radius
     for (var i = 0; i < crime_coords.length; i++) {
         currentDistance = calcDistance(marker.lat(),marker.lng(),crime_coords[i].lat(),crime_coords[i].lng());
-        if (currentDistance < threshold) {
+        if (currentDistance < threshold) { //within 3km radius
             crime_count += 1;
         }
     }
 
+    //count number of residential properties within a 3 km radius
     for (var i = 0; i < property_coords.length; i++) {
         currentDistance = calcDistance(marker.lat(),marker.lng(),property_coords[i].lat(),property_coords[i].lng());
-        if (currentDistance < threshold) {
+        if (currentDistance < threshold) { //within 3km radius
             property_count += 1;
         }
     }
-    console.log(property_count,crime_count,school_count,hospital_count);
-    score = (property_count * 0.25 / 30) + school_count * 0.25 + hospital_count * 0.25 - (crime_count * 0.25 / 100);
+
+    //we have to wait around 30 seconds for all the properties and crimes to load, otherwise the score will be negative due to our scaling
+    console.log('property count: ', property_count,'crime count: ', crime_count,'school count: ', school_count,'hospital count: ', hospital_count);
+
+    score = school_count * 0.25 + hospital_count * 0.25 - crime_count * 0.25 - property_count * 0.25;
+    score = -1/score * 10000; //scale score so it is positive due to the large number of residences and crimes
+
+    //set the score in the HTML
     document.getElementById('score').innerHTML = 'Score: ' + score;
-
-
 }
 
+//compute the closest (school/hospital) to the marker
 function getClosest(marker,category,type) {
     var minDistance = 100000;
     var currentDistance , counter;
 
+    //compute closest distance so we only have to make one google API call
     for (var i = 0; i < category.length; i++) {
         currentDistance = calcDistance(marker.lat(),marker.lng(),category[i].lat(),category[i].lng());
         if (currentDistance < minDistance) { //found new minimum distance
@@ -214,7 +195,7 @@ function getClosest(marker,category,type) {
         unitSystem: google.maps.UnitSystem.IMPERIAL
     }, callback);
 
-    //parse response
+    //parse response and post to page
     function callback(response, status) {
         if (status == "OK") {
 
@@ -236,6 +217,7 @@ function getClosest(marker,category,type) {
 
 }
 
+//calculates distance of two points
 function calcDistance(lat1,lon1,lat2,lon2) {
     var R = 6371;
     var dLat = deg2rad(lat2-lat1);
@@ -246,6 +228,7 @@ function calcDistance(lat1,lon1,lat2,lon2) {
     return d;
 }
 
+//degree to radians
 function deg2rad(deg){
     return deg * (Math.PI/180);
 }
