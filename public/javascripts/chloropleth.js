@@ -1,5 +1,9 @@
 //generates the chloropleth graph
 
+var neighborhood_scores = JSON.parse(document.getElementById('neighborhood_scores').innerHTML);
+//console.log('neighborhood_scores:' , neighborhood_scores);
+
+
 // THIS IS THE JSON OBJECT W/ ALL TH DATA IN IT.
 var zipData = {
     "type": "FeatureCollection", "features": [
@@ -8,7 +12,7 @@ var zipData = {
         "id": "01",
         "properties": {
             "name": "Allston",
-            "density": 4.77 // The density is the score.
+            "density": neighborhood_scores[0][1].toFixed(2) //4.77 // The density is the score.
         },
         "geometry":{
             "type": "Polygon",
@@ -20,7 +24,7 @@ var zipData = {
         "id" : "02",
         "properties": {
             "name": "Back Bay",
-            "density": 1.64
+            "density": neighborhood_scores[1][1].toFixed(2) //1.64
         },
         "geometry": {
             "type": "Polygon",
@@ -45,7 +49,7 @@ var zipData = {
         "id": "04",
         "properties": {
             "name": "Beacon Hill",
-            "density": 1.6
+            "density": neighborhood_scores[3][1].toFixed(2) //1.6
         },
         "geometry": {
             "type": "Polygon",
@@ -57,7 +61,7 @@ var zipData = {
         "id": "05",
         "properties": {
             "name": "Brighton",
-            "density": 5.28
+            "density": neighborhood_scores[4][1].toFixed(2) //5.28
         },
         "geometry": {
             "type": "Polygon",
@@ -69,7 +73,7 @@ var zipData = {
         "id": "06",
         "properties": {
             "name": "Charlestown",
-            "density": 2.69
+            "density": neighborhood_scores[5][1].toFixed(2) //2.69
         },
         "geometry": {
             "type": "Polygon",
@@ -81,7 +85,7 @@ var zipData = {
         "id": "07",
         "properties": {
             "name": "Chinatown",
-            "density": 2.0
+            "density": neighborhood_scores[6][1].toFixed(2)// 2.0
         },
         "geometry": {
             "type": "Polygon",
@@ -93,7 +97,7 @@ var zipData = {
         "id": "08",
         "properties": {
             "name": "Dorchester",
-            "density": 6.41
+            "density": neighborhood_scores[7][1].toFixed(2)//6.41
         },
         "geometry": {
             "type": "Polygon",
@@ -105,7 +109,7 @@ var zipData = {
         "id": "09",
         "properties": {
             "name": "Downtown Crossing",
-            "density": 2.13
+            "density": neighborhood_scores[8][1].toFixed(2)//2.13
         },
         "geometry": {
             "type": "Polygon",
@@ -117,7 +121,7 @@ var zipData = {
         "id": "10",
         "properties": {
             "name": "East Boston",
-            "density": 2.77
+            "density": neighborhood_scores[9][1].toFixed(2)//2.77
         },
         "geometry": {
             "type": "Polygon",
@@ -129,7 +133,7 @@ var zipData = {
         "id": "11",
         "properties": {
             "name": "Fenway",
-            "density": 2.86
+            "density": neighborhood_scores[10][1].toFixed(2)//2.86
         },
         "geometry": {
             "type": "Polygon",
@@ -141,7 +145,7 @@ var zipData = {
         "id": "12",
         "properties": {
             "name": "Hyde Park",
-            "density": 11.59
+            "density": neighborhood_scores[11][1].toFixed(2)//11.59
         },
         "geometry": {
             "type": "Polygon",
@@ -153,7 +157,7 @@ var zipData = {
         "id": "13",
         "properties": {
             "name": "Jamaica Plain",
-            "density": 5.55
+            "density": neighborhood_scores[12][1].toFixed(2)//5.55
         },
         "geometry": {
             "type": "Polygon",
@@ -165,7 +169,7 @@ var zipData = {
         "id": "14",
         "properties": {
             "name": "Mattapan",
-            "density": 10.68
+            "density": neighborhood_scores[13][1].toFixed(2)//10.68
         },
         "geometry": {
             "type": "Polygon",
@@ -177,7 +181,7 @@ var zipData = {
         "id": "15",
         "properties": {
             "name": "Mission Hill",
-            "density": 4.45
+            "density": neighborhood_scores[14][1].toFixed(2)//4.45
         },
         "geometry": {
             "type": "Polygon",
@@ -189,7 +193,7 @@ var zipData = {
         "id": "16",
         "properties": {
             "name": "North End",
-            "density": 2.3
+            "density": neighborhood_scores[15][1].toFixed(2)//2.3
         },
         "geometry": {
             "type": "Polygon",
@@ -201,7 +205,7 @@ var zipData = {
         "id": "17",
         "properties": {
             "name": "Roslindale",
-            "density": 9.44
+            "density": neighborhood_scores[16][1].toFixed(2)//9.44
         },
         "geometry": {
             "type": "Polygon",
@@ -213,7 +217,7 @@ var zipData = {
         "id": "18",
         "properties": {
             "name": "Roxbury",
-            "density": 7.03
+            "density": neighborhood_scores[17][1].toFixed(2)//7.03
         },
         "geometry": {
             "type": "Polygon",
@@ -225,7 +229,7 @@ var zipData = {
         "id": "19",
         "properties": {
             "name": "South Boston",
-            "density": 2.42
+            "density": neighborhood_scores[18][1].toFixed(2)//2.42
         },
         "geometry": {
             "type": "Polygon",
@@ -237,7 +241,7 @@ var zipData = {
         "id": "20",
         "properties": {
             "name": "South End",
-            "density": 2.7
+            "density": neighborhood_scores[19][1].toFixed(2)//2.7
         },
         "geometry": {
             "type": "Polygon",
@@ -249,7 +253,7 @@ var zipData = {
         "id": "21",
         "properties": {
             "name": "West End",
-            "density": 1.93
+            "density": neighborhood_scores[20][1].toFixed(2)//1.93
         },
         "geometry": {
             "type": "Polygon",
@@ -261,7 +265,7 @@ var zipData = {
         "id": "22",
         "properties": {
             "name": "West Roxbury",
-            "density": 9.37
+            "density": neighborhood_scores[21][1].toFixed(2)//9.37
         },
         "geometry": {
             "type": "Polygon",

@@ -63,7 +63,7 @@ db.open(function(err, db) {
         if (err) { console.log ('Error message : ' + error); }
 
         for (var i = 0; i < result.length; i++) {
-            neighborhood_scores.push( [ result[i]['neighborhood'] , result[i]['score'] ]);
+            neighborhood_scores.push( [ result[i]['neighborhood'] , result[i]['score'] , result[i]['property_value'] , result[i]['crime_rate'] , result[i]['hosptial_count'] , result[i]['school_count'] ]);
         }
     });
 
